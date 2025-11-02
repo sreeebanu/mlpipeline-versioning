@@ -16,7 +16,22 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
-from src.versioning import read_version, bump_version_file
+# Import versioning in a way that works both when running as a module
+# (python -m src.train) and when running the script directly
+try:
+    from src.versioning import read_version, bump_version_file
+except Exception:
+    # If executed as `python src/train.py`, Python's import system may
+    # not find the top-level `src` package because sys.path[0] becomes
+    # the `src` directory. In that case, add the repository root to
+    # sys.path so `import src` works.
+    import os
+    import sys
+
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+    if repo_root not in sys.path:
+        sys.path.insert(0, repo_root)
+    from src.versioning import read_version, bump_version_file
 
 
 def run_pipeline(output_dir: str, version_file: str, bump: str | None = None) -> int:
